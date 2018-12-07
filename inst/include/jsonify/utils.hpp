@@ -17,8 +17,12 @@ namespace utils {
     js.attr("class") = "json";
     return js;
   }
+
+  inline bool should_unbox( int n, bool unbox ) {
+    return ( unbox && n == 1 );
+  }
   
-  template< typename Writer>
+  template< typename Writer >
   inline void writer_starter( Writer& writer, bool& has_names ) {
     if ( has_names ) {
       writer.StartObject();
@@ -26,11 +30,25 @@ namespace utils {
       writer.StartArray();
     }
   }
-  template< typename Writer>
+  template< typename Writer >
   inline void writer_ender( Writer& writer, bool& has_names ) {
     if ( has_names ) {
       writer.EndObject();
     } else {
+      writer.EndArray();
+    }
+  }
+  
+  template< typename Writer >
+  inline void start_array( Writer& writer, bool& unbox ) {
+    if( !unbox ) {
+      writer.StartArray();
+    }
+  }
+  
+  template< typename Writer >
+  inline void end_array( Writer& writer, bool& unbox ) {
+    if( !unbox ) {
       writer.EndArray();
     }
   }
