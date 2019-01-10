@@ -7,6 +7,8 @@
 
 using namespace rapidjson;
 
+// TODO( remove this once spatialwidget v0.2 is on CRAN )
+
 namespace jsonify {
 namespace writers {
 
@@ -17,7 +19,7 @@ namespace writers {
   
   template <typename Writer>
   inline void write_value( Writer& writer, int& value ) {
-     if( std::isnan( value ) ) {
+    if( std::isnan( value ) ) {
       writer.Null();
     } else {
       writer.Int( value );
@@ -106,8 +108,6 @@ namespace writers {
     
     for ( int i = 0; i < n; i++ ) {
       if (Rcpp::LogicalVector::is_na( lv[i] ) ) {
-        //Rcpp::Rcout << "NA logical found" << std::endl;
-        // write_value( writer, "NA" );
         writer.Null();
       } else {
         bool l = lv[i];             // required for logical vectors
@@ -125,7 +125,7 @@ namespace writers {
       write_value( writer, t[0] );
     }
   }
-
+  
   template< typename Writer>
   inline void write_value( Writer& writer, SEXP& list_element, bool unbox = false ) {
     
@@ -159,7 +159,7 @@ namespace writers {
         }
       }
       // END LIST NAMES
-
+      
       jsonify::utils::writer_starter( writer, has_names );
       
       for ( int i = 0; i < n; i++ ) {
@@ -172,7 +172,7 @@ namespace writers {
       }
       
       jsonify::utils::writer_ender( writer, has_names );
-
+      
       break;
     }
     case REALSXP: {

@@ -1,8 +1,7 @@
-#ifndef R_JSONIFY_TOJSON_H
-#define R_JSONIFY_TOJSON_H
+#ifndef JSONIFY_TO_JSON_H
+#define JSONIFY_TO_JSON_H
 
-#include "to_json/dataframe.hpp"
-#include "to_json/vectors.hpp"
-#include "to_json/writers.hpp"
-#include "to_json/matrix.hpp"
-#endif
+// TODO( remove once spatialwidgets v0.2.0 is on CRAN)
+#include "jsonify/to_json/vectors.hpp"
+
+#endif 

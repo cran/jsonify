@@ -9,13 +9,16 @@ test_that("different vector types work", {
   expect_equal(as.character(to_json(as.Date("2018-01-01"))), "[17532.0]")
   expect_equal(as.character(to_json(as.Date("2018-01-01"), numeric_dates = F)), "[\"2018-01-01\"]")
   expect_equal(as.character(to_json(as.POSIXct("2018-01-01 01:00:00", tz = "GMT"))), "[1514768400.0]")
-  expect_equal(as.character(to_json(as.POSIXct("2018-01-01 01:00:00", tz = "GMT"), numeric_dates = F)), "[\"2018-01-01 01:00:00\"]")
+  expect_equal(as.character(to_json(as.POSIXct("2018-01-01 01:00:00", tz = "GMT"), numeric_dates = F)), "[\"2018-01-01T01:00:00\"]")
   expect_equal(as.character(to_json(as.POSIXlt("2018-01-01 01:00:00", tz = "GMT"))), "{\"sec\":[0.0],\"min\":[0],\"hour\":[1],\"mday\":[1],\"mon\":[0],\"year\":[118],\"wday\":[1],\"yday\":[0],\"isdst\":[0]}")
-  expect_equal(as.character(to_json(as.POSIXlt("2018-01-01 01:00:00", tz = "GMT"), numeric_dates = F)), "[\"2018-01-01 01:00:00\"]")
+  expect_equal(as.character(to_json(as.POSIXlt("2018-01-01 01:00:00", tz = "GMT"), numeric_dates = F)), '{"sec":[0.0],"min":[0],"hour":[1],"mday":[1],"mon":[0],"year":[118],"wday":[1],"yday":[0],"isdst":[0]}')
   expect_equal(as.character(to_json(complex(1))),"[\"0+0i\"]")
-  ## Numeric dates not implemented for lists
-  expect_equal(as.character(to_json( list(x = as.Date("2018-01-01") ), numeric_dates = F)), '{"x":[17532.0]}')
+  expect_equal(as.character(to_json( list(x = as.Date("2018-01-01") ), numeric_dates = F)), '{"x":[\"2018-01-01\"]}')
   expect_equal(as.character(to_json( list(x = as.Date("2018-01-01") ), numeric_dates = T)), '{"x":[17532.0]}')
+  
+  expect_equal(as.character(to_json( as.factor(letters[1:5]))), '["a","b","c","d","e"]')
+  expect_equal(as.character(to_json( as.factor(letters[1:5]), factors_as_string = FALSE )),'[1,2,3,4,5]')
+  
 })
 
 test_that("NAs, NULLS and Infs work", {
@@ -61,8 +64,12 @@ test_that("round trips with jsonlite work", {
   expect_equal( jsonlite::fromJSON( to_json( x ) ), x)
 })
 
-## TODO( test list of all mixed types, inc Date, POSIXct and POSIXlt)
+test_that("some randome thoughts I had work", {
 
-# lst <- list(x = as.Date("2018-01-01"), y = list(as.POSIXct("2018-01-01 10:00:00")), z = NA)
-# as.character(to_json( lst, numeric_dates = F, unbox = T ))
+  lst <- list(x = as.Date("2018-01-01"), y = list(as.POSIXct("2018-01-01 10:00:00", tz = "UTC")), z = NA)
+  js <- to_json( lst, numeric_dates = FALSE, unbox = TRUE )
+  expect_true( validate_json( js ) ) 
+  expect_equal( as.character(js), '{"x":"2018-01-01","y":["2018-01-01T10:00:00"],"z":null}')
+  
+})
 

@@ -3,93 +3,46 @@
 
 #include <Rcpp.h>
 
-#include "jsonify/jsonify.hpp"
+#include "jsonify/to_json/writers/simple.hpp"
+#include "jsonify/to_json/writers/complex.hpp"
+#include "jsonify/to_json/writers.hpp"
 
 using namespace rapidjson;
+
+// TODO( remove this once spatialwidget v0.2 is on CRAN)
 
 namespace jsonify {
 namespace dataframe {
 
+  // keeping these dataframe_cell functions so they can be called directly by other libraries
+  //, e.g., geojsonsf
   template <typename Writer>
-  inline void dataframe_cell( Writer& writer, SEXP& this_vec, size_t& row, bool unbox = false ) {
-    
-    switch( TYPEOF( this_vec ) ) {
-    case VECSXP: {
-      Rcpp::List lst = Rcpp::as< Rcpp::List >( this_vec );
-      SEXP s = lst[ row ];
-      jsonify::writers::write_value( writer, s, unbox );
-      break;
-    }
-    case REALSXP: {
-      Rcpp::NumericVector nv = Rcpp::as< Rcpp::NumericVector >( this_vec );
-      if ( Rcpp::NumericVector::is_na( nv[ row ] ) ) { 
-        writer.Null();
-      } else {
-        double n = nv[ row ];
-        jsonify::writers::write_value( writer, n );
-      }
-      break;
-    }
-    case INTSXP: { 
-      Rcpp::IntegerVector iv = Rcpp::as< Rcpp::IntegerVector >( this_vec );
-      if ( Rcpp::IntegerVector::is_na( iv[ row ] ) ) {
-        writer.Null();
-      } else {
-        int i = iv[ row ];
-        jsonify::writers::write_value( writer, i );
-      }
-      break;
-    }
-    case LGLSXP: {
-      Rcpp::LogicalVector lv = Rcpp::as< Rcpp::LogicalVector >( this_vec );
-      if ( Rcpp::LogicalVector::is_na( lv[ row ] ) ) { 
-        writer.Null();
-      } else {
-        bool l = lv[ row ];
-        jsonify::writers::write_value( writer, l );
-      }
-      break;
-    }
-    default: {
-      Rcpp::StringVector sv = Rcpp::as< Rcpp::StringVector >( this_vec );
-      if ( Rcpp::StringVector::is_na( sv[ row ] ) ) {
-        writer.Null();
-      } else {
-        const char *s = sv[ row ];
-        jsonify::writers::write_value( writer, s );
-      }
-      break;
-    }
-    }
+  inline void dataframe_cell( Writer& writer, SEXP this_vec, int row,
+                              int digits, bool numeric_dates, 
+                              bool factors_as_string ) {
+
+    jsonify::writers::simple::write_value( writer, this_vec, row, digits, numeric_dates, factors_as_string );
+
   }
 
-  inline Rcpp::StringVector to_json( Rcpp::DataFrame& df, bool unbox = false ) {
-    
+  // overload for when you dont' specify 'unbox'
+  template <typename Writer>
+  inline void dataframe_cell( Writer& writer, SEXP this_vec, int row ) {
+    dataframe_cell( writer, this_vec, row, -1, false, true );
+  }
+  
+  // overload for when you dont' specify 'unbox'
+  template <typename Writer>
+  inline void dataframe_cell( Writer& writer, SEXP this_vec, size_t row ) {
+    int i = row;
+    dataframe_cell( writer, this_vec, i, -1, false, true);
+  }
+
+  inline Rcpp::StringVector to_json( Rcpp::DataFrame& df, bool unbox = false, int digits = -1 ) {
+    // Rcpp::warning("namespace jsonify::dataframe is deprecated. Use jsonify::api instead");
     rapidjson::StringBuffer sb;
     rapidjson::Writer < rapidjson::StringBuffer > writer( sb );
-    
-    size_t n_cols = df.ncol();
-    size_t n_rows = df.nrows();
-    size_t i, j;
-    Rcpp::StringVector column_names = df.names();
-    
-    writer.StartArray();
-    
-    for( i = 0; i < n_rows; i++ ) {
-      writer.StartObject();
-      for( j = 0; j < n_cols; j++ ) {
-        const char *h = column_names[ j ];
-        
-        jsonify::writers::write_value( writer, h );
-        
-        SEXP this_vec = df[ h ];
-        dataframe_cell( writer, this_vec, i, unbox );
-        
-      }
-      writer.EndObject();
-    }
-    writer.EndArray();
-    
+    jsonify::writers::complex::write_value( writer, df, unbox, digits );
     return jsonify::utils::finalise_json( sb );
   }
 
