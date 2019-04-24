@@ -1,3 +1,8 @@
+## v0.2.1
+
+* `as.json()` method
+* Bug fix: AsIs data.frame inside another data.frame [issue #38](https://github.com/SymbolixAU/jsonify/issues/38)
+
 ## v0.2.0
 
 * by column | row option

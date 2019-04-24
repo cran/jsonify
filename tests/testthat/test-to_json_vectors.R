@@ -73,3 +73,29 @@ test_that("some randome thoughts I had work", {
   
 })
 
+test_that("factors work as expected", {
+  
+  expect_equal( as.character( to_json( factor() ) ), "null" )
+  
+  expect_equal( as.character( to_json( factor( c("a","a") ) ) ), '["a","a"]')
+  expect_equal( as.character( to_json( factor( c("a","a") ), factors_as_string = FALSE ) ), '[1,1]')
+  
+  x <- factor(c("a", NA_character_, "B"))
+  expect_equal( as.character( to_json( x ) ), '["a",null,"B"]' )
+  
+  # expect_equal( to_json( factor() ), to_json( numeric() ) )
+  
+  expect_equal( as.character( to_json( factor( NA_integer_ ) ) ), "null" )
+  
+  df_factors <- data.frame( vals = sample(letters, size = 100, replace = TRUE))
+  df_strings <- df_factors
+  df_strings$vals <- as.character( df_factors$vals )
+  
+  expect_equal( to_json( df_factors ), to_json( df_strings ) )
+  expect_equal( to_json( df_factors[1, ] ), to_json( df_strings[1, ] ) )
+  
+  df <- data.frame( x = c("a","a","a") )
+  expect_equal( as.character( to_json( df ) ), '[{"x":"a"},{"x":"a"},{"x":"a"}]' )
+  expect_equal( as.character( to_json( df , factors_as_string = FALSE ) ), '[{"x":1},{"x":1},{"x":1}]' )
+  
+})

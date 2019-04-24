@@ -130,13 +130,15 @@ namespace simple {
       
       Rcpp::CharacterVector lvls = iv.attr( "levels" );
       if (lvls.length() == 0 ) {
-        // no level s- from NA_character_ vector
+        // no levels - from NA_character_ vector
         Rcpp::StringVector s(1);
         s[0] = NA_STRING;
         int ele = 0;
         write_value( writer, s, ele );
       } else {
-        write_value( writer, lvls, unbox );
+        Rcpp::StringVector str = Rcpp::as< Rcpp::StringVector >( iv );
+        write_value( writer, str, unbox );
+        //write_value( writer, lvls, unbox );
       }
       
     } else {
@@ -186,7 +188,8 @@ namespace simple {
         int ele = 0;
         write_value( writer, s, ele );
       } else {
-        write_value( writer, lvls, row );
+        Rcpp::StringVector str = Rcpp::as< Rcpp::StringVector >( iv );
+        write_value( writer, str, row );
       }
       
     } else {

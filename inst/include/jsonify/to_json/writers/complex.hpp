@@ -36,7 +36,8 @@ namespace complex {
           int ele = 0;
           jsonify::writers::simple::write_value( writer, s, ele );
         } else {
-          jsonify::writers::simple::write_value( writer, lvls, unbox );
+          Rcpp::StringVector str = Rcpp::as< Rcpp::StringVector >( iv );
+          jsonify::writers::simple::write_value( writer, str, unbox );
         }
       } else {
         jsonify::writers::simple::write_value( writer, iv, unbox, numeric_dates, factors_as_string );
@@ -174,12 +175,12 @@ namespace complex {
         
         if ( row >= 0 ) {
           
+          writer.StartObject();
           for( df_col = 0; df_col < n_cols; df_col++ ) {
-            
-            writer.StartObject();
             
             const char *h = column_names[ df_col ];
             writer.String( h );
+            
             SEXP this_vec = df[ h ];
             
             switch( TYPEOF( this_vec ) ) {
@@ -192,8 +193,9 @@ namespace complex {
               switch_vector( writer, this_vec, unbox, digits, numeric_dates, factors_as_string, row );
             }
             } // end switch
-            writer.EndObject();
+            
           } // end for
+          writer.EndObject();
           
         } else {
           
@@ -232,7 +234,6 @@ namespace complex {
       case VECSXP: {
         // the case where the list item is a row of a data.frame
         // ISSUE #32
-        
         Rcpp::List temp_lst = Rcpp::as< Rcpp::List >( list_element );
         bool has_names;
         
