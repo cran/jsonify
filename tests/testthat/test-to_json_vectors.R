@@ -49,19 +49,19 @@ test_that("NAs, NULLS and Infs work and unboxed", {
   expect_equal(as.character(to_json(data.frame(), unbox = T)), "[]")
 })
 
-test_that("round trips with jsonlite work", {
+test_that("round trips work", {
   x <- c(1L, NA_integer_)
-  expect_equal( jsonlite::fromJSON( to_json( x ) ), x)
+  expect_equal( from_json( to_json( x ) ), x)
   x <- c(1.0, NA_real_)
-  expect_equal( jsonlite::fromJSON( to_json( x ) ), x)
+  expect_equal( from_json( to_json( x ) ), x)
   x <- c("1", NA_character_)
-  expect_equal( jsonlite::fromJSON( to_json( x ) ), x)
+  expect_equal( from_json( to_json( x ) ), x)
   x <- c(T,F, NA)
-  expect_equal( jsonlite::fromJSON( to_json( x ) ), x)
-  x <- c(1, Inf, -Inf)
-  expect_equal( jsonlite::fromJSON( to_json( x ) ), x)
+  expect_equal( from_json( to_json( x ) ), x)
+  # x <- c(1, Inf, -Inf)
+  # expect_equal( from_json( to_json( x ) ), x)
   x <- list()
-  expect_equal( jsonlite::fromJSON( to_json( x ) ), x)
+  expect_equal( from_json( to_json( x ) ), x)
 })
 
 test_that("some randome thoughts I had work", {
@@ -75,7 +75,7 @@ test_that("some randome thoughts I had work", {
 
 test_that("factors work as expected", {
   
-  expect_equal( as.character( to_json( factor() ) ), "null" )
+  expect_equal( as.character( to_json( factor() ) ), "[]" )
   
   expect_equal( as.character( to_json( factor( c("a","a") ) ) ), '["a","a"]')
   expect_equal( as.character( to_json( factor( c("a","a") ), factors_as_string = FALSE ) ), '[1,1]')

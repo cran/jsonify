@@ -14,102 +14,131 @@ namespace writers {
 namespace complex {
 
   template < typename Writer >
-  inline void switch_vector( Writer& writer, SEXP this_vec, bool unbox, 
-                             int digits, bool numeric_dates, 
-                             bool factors_as_string ) {
+  inline void switch_vector(
+      Writer& writer, 
+      SEXP this_vec, 
+      bool unbox, 
+      int digits, 
+      bool numeric_dates, 
+      bool factors_as_string
+    ) {
     
     switch( TYPEOF( this_vec ) ) {
     case REALSXP: {
+    if( Rf_isMatrix( this_vec ) ) {
+      Rcpp::NumericMatrix nm = Rcpp::as< Rcpp::NumericMatrix >( this_vec );
+      jsonify::writers::simple::write_value( writer, nm, unbox );
+    } else {
       Rcpp::NumericVector nv = Rcpp::as< Rcpp::NumericVector >( this_vec );
       jsonify::writers::simple::write_value( writer, nv, unbox, digits, numeric_dates );
-      break;
+    }
+    break;
     }
     case INTSXP: {
+    if( Rf_isMatrix( this_vec ) ) {
+      Rcpp::IntegerMatrix im = Rcpp::as< Rcpp::IntegerMatrix >( this_vec );
+      jsonify::writers::simple::write_value( writer, im, unbox );
+    } else {
       Rcpp::IntegerVector iv = Rcpp::as< Rcpp::IntegerVector >( this_vec );
-      if ( factors_as_string && Rf_isFactor( this_vec ) ) {
-        Rcpp::CharacterVector lvls = iv.attr( "levels" );
-        if( lvls.length() == 0 ) {
-          // no levels - from NA_character_ vector
-          
-          Rcpp::StringVector s(1);
-          s[0] = NA_STRING;
-          int ele = 0;
-          jsonify::writers::simple::write_value( writer, s, ele );
-        } else {
-          Rcpp::StringVector str = Rcpp::as< Rcpp::StringVector >( iv );
-          jsonify::writers::simple::write_value( writer, str, unbox );
-        }
-      } else {
-        jsonify::writers::simple::write_value( writer, iv, unbox, numeric_dates, factors_as_string );
-      }
+      jsonify::writers::simple::write_value( writer, iv, unbox, numeric_dates, factors_as_string );
+    }
       break;
     }
     case LGLSXP: {
-      Rcpp::LogicalVector lv = Rcpp::as< Rcpp::LogicalVector >( this_vec );
-      jsonify::writers::simple::write_value( writer, lv, unbox );
-      break;
+    if( Rf_isMatrix( this_vec ) ) {
+      Rcpp::LogicalMatrix lm = Rcpp::as< Rcpp::LogicalMatrix >( this_vec );
+      jsonify::writers::simple::write_value( writer, lm, unbox );
+    } else {
+        Rcpp::LogicalVector lv = Rcpp::as< Rcpp::LogicalVector >( this_vec );
+        jsonify::writers::simple::write_value( writer, lv, unbox );
+    }
+    break;
     }
     default: {
+    if( Rf_isMatrix( this_vec ) ) {
+      Rcpp::StringMatrix sm = Rcpp::as< Rcpp::StringMatrix >( this_vec );
+      jsonify::writers::simple::write_value( writer, sm, unbox );
+    } else {
       Rcpp::StringVector sv = Rcpp::as< Rcpp::StringVector >( this_vec );
       jsonify::writers::simple::write_value( writer, sv, unbox );
-      break;
+    }
+    break;
     }
     }
   }
   
   // working by-row, so we only use a single element of each vector
   template < typename Writer >
-  inline void switch_vector( Writer& writer, SEXP this_vec, bool unbox, 
-                             int digits, bool numeric_dates, 
-                             bool factors_as_string, int row) {
+  inline void switch_vector(
+      Writer& writer, 
+      SEXP this_vec, 
+      bool unbox, 
+      int digits, 
+      bool numeric_dates, 
+      bool factors_as_string, 
+      int row
+    ) {
     
     switch( TYPEOF( this_vec ) ) {
     case REALSXP: {
-      Rcpp::NumericVector nv = Rcpp::as< Rcpp::NumericVector >( this_vec );
-      jsonify::writers::simple::write_value( writer, nv, row, digits, numeric_dates );
-      break;
+      
+      if( Rf_isMatrix( this_vec ) ) {
+        Rcpp::NumericMatrix nm = Rcpp::as< Rcpp::NumericMatrix >( this_vec );
+        jsonify::writers::simple::write_value( writer, nm, row, unbox );
+      } else {
+        
+        Rcpp::NumericVector nv = Rcpp::as< Rcpp::NumericVector >( this_vec );
+        jsonify::writers::simple::write_value( writer, nv, row, digits, numeric_dates );
+      }
+    break;
     }
     case INTSXP: {
-      Rcpp::IntegerVector iv = Rcpp::as< Rcpp::IntegerVector >( this_vec );
-      if( factors_as_string && Rf_isFactor( this_vec ) ) {
-        Rcpp::CharacterVector lvls = iv.attr("levels");
-        if ( lvls.length() == 0 ) {
-          // no levls - from NA_character_ vector
-          
-          Rcpp::StringVector s(1);
-          s[0] = NA_STRING;
-          int ele = 0;
-          jsonify::writers::simple::write_value( writer, s, ele );
-        } else {
-          int this_int = iv[ row ];
-          const char * this_char = lvls[ this_int -1 ];
-          writer.String( this_char );
-        }
+      if( Rf_isMatrix( this_vec ) ) {
         
+        Rcpp::IntegerMatrix im = Rcpp::as< Rcpp::IntegerMatrix >( this_vec );
+        jsonify::writers::simple::write_value( writer, im, row, unbox );
       } else {
+        
+        Rcpp::IntegerVector iv = Rcpp::as< Rcpp::IntegerVector >( this_vec );
         jsonify::writers::simple::write_value( writer, iv, row, numeric_dates, factors_as_string );
       }
       break;
     }
     case LGLSXP: {
-      Rcpp::LogicalVector lv = Rcpp::as< Rcpp::LogicalVector >( this_vec );
-      jsonify::writers::simple::write_value( writer, lv, row );
+      if( Rf_isMatrix( this_vec ) ) {
+        Rcpp::LogicalMatrix lm = Rcpp::as< Rcpp::LogicalMatrix >( this_vec );
+        jsonify::writers::simple::write_value( writer, lm, row, unbox );
+     } else {
+        Rcpp::LogicalVector lv = Rcpp::as< Rcpp::LogicalVector >( this_vec );
+        jsonify::writers::simple::write_value( writer, lv, row );
+      }
       break;
     }
     default: {
-      Rcpp::StringVector sv = Rcpp::as< Rcpp::StringVector >( this_vec );
-      jsonify::writers::simple::write_value( writer, sv, row );
+      if( Rf_isMatrix( this_vec ) ) {
+        Rcpp::StringMatrix sm = Rcpp::as< Rcpp::StringMatrix >( this_vec );
+        jsonify::writers::simple::write_value( writer, sm, row, unbox );
+      } else {
+        Rcpp::StringVector sv = Rcpp::as< Rcpp::StringVector >( this_vec );
+        jsonify::writers::simple::write_value( writer, sv, row );
+      }
       break;
     }
     }
   }
 
   template< typename Writer >
-  inline void write_value( Writer& writer, SEXP list_element, bool unbox = false, 
-                           int digits = -1, bool numeric_dates = true,
-                           bool factors_as_string = true, std::string by = "row", 
-                           int row = -1   // for when we are recursing into a row of a data.frame
-                             ) {
+  inline void write_value(
+      Writer& writer, 
+      SEXP list_element, 
+      bool unbox = false, 
+      int digits = -1, 
+      bool numeric_dates = true,
+      bool factors_as_string = true, 
+      std::string by = "row", 
+      int row = -1,   // for when we are recursing into a row of a data.frame
+      bool in_data_frame = false  // for keeping track of when we're in a column of a data.frame
+      ) {
     
     int i, df_col, df_row;
     
@@ -145,6 +174,7 @@ namespace complex {
       }
     } else if ( Rf_inherits( list_element, "data.frame" ) ) {
       
+      in_data_frame = true;
       Rcpp::DataFrame df = Rcpp::as< Rcpp::DataFrame >( list_element );
       int n_cols = df.ncol();
       int n_rows = df.nrows();
@@ -158,16 +188,8 @@ namespace complex {
           const char *h = column_names[ df_col ];
           writer.String( h );
           SEXP this_vec = df[ h ];
+          write_value( writer, this_vec, unbox, digits, numeric_dates, factors_as_string, by, -1, in_data_frame );
           
-          switch( TYPEOF( this_vec ) ) {
-          case VECSXP: {
-            write_value( writer, this_vec, unbox, digits, numeric_dates, factors_as_string, by );
-            break;
-          }
-          default: {
-            switch_vector( writer, this_vec, unbox, digits, numeric_dates, factors_as_string );
-          }
-          }
         }
         writer.EndObject();
         
@@ -184,9 +206,10 @@ namespace complex {
             SEXP this_vec = df[ h ];
             
             switch( TYPEOF( this_vec ) ) {
+     
             case VECSXP: {
               Rcpp::List lst = Rcpp::as< Rcpp::List >( this_vec );
-              write_value( writer, lst, unbox, digits, numeric_dates, factors_as_string, by, row );
+              write_value( writer, lst, unbox, digits, numeric_dates, factors_as_string, by, row, in_data_frame );
               break;
             }
             default: {
@@ -209,11 +232,11 @@ namespace complex {
               const char *h = column_names[ df_col ];
               writer.String( h );
               SEXP this_vec = df[ h ];
-              
+       
               switch( TYPEOF( this_vec ) ) {
               case VECSXP: {
                 Rcpp::List lst = Rcpp::as< Rcpp::List >( this_vec );
-                write_value( writer, lst, unbox, digits, numeric_dates, factors_as_string, by, df_row );
+                write_value( writer, lst, unbox, digits, numeric_dates, factors_as_string, by, df_row, in_data_frame );
                 break;
               }
               default: {
@@ -232,6 +255,7 @@ namespace complex {
       switch( TYPEOF( list_element ) ) {
       
       case VECSXP: {
+     
         // the case where the list item is a row of a data.frame
         // ISSUE #32
         Rcpp::List temp_lst = Rcpp::as< Rcpp::List >( list_element );
@@ -250,7 +274,7 @@ namespace complex {
             lst.names() = this_name;
           }
 
-          write_value( writer, lst, unbox, digits, numeric_dates, factors_as_string, by );  
+          write_value( writer, lst, unbox, digits, numeric_dates, factors_as_string, by, -1, in_data_frame );  
           
         } else {
           lst = temp_lst;
@@ -264,8 +288,8 @@ namespace complex {
           }
           
           // LIST NAMES
-          Rcpp::IntegerVector int_names = Rcpp::seq(1, lst.size());
-          Rcpp::CharacterVector list_names = Rcpp::as< Rcpp::CharacterVector >( int_names );
+          // issue 53
+          Rcpp::CharacterVector list_names( lst.size() ); // initialises an empty-string vector
           has_names = lst.hasAttribute("names");
           
           if ( has_names ) {
@@ -276,7 +300,9 @@ namespace complex {
           }
           // END LIST NAMES
           
-          jsonify::utils::writer_starter( writer, has_names );
+          // issue 44
+          // list-column in a data.frame shouldn't be nested inside another array
+          jsonify::utils::writer_starter( writer, has_names, in_data_frame );
           
           for ( i = 0; i < n; i++ ) {
             
@@ -285,19 +311,22 @@ namespace complex {
               const char *s = list_names[ i ];
               writer.String( s );
             }
-            write_value( writer, recursive_list, unbox, digits, numeric_dates, factors_as_string, by );
+            // setting in_data_frame to false because we're no longer at the data.frame top-level
+            write_value( writer, recursive_list, unbox, digits, numeric_dates, factors_as_string, by, -1, false ); 
           }
-        jsonify::utils::writer_ender( writer, has_names );
+          
+          jsonify::utils::writer_ender( writer, has_names, in_data_frame );
         } // end if (by row)
         break;
       }
         
       case REALSXP: {
+        
         Rcpp::NumericVector nv = Rcpp::as< Rcpp::NumericVector >( list_element );
         jsonify::writers::simple::write_value( writer, nv, unbox, digits, numeric_dates );
         break;
       }
-      case INTSXP: { 
+      case INTSXP: {
         Rcpp::IntegerVector iv = Rcpp::as< Rcpp::IntegerVector >( list_element );
         jsonify::writers::simple::write_value( writer, iv, unbox, numeric_dates, factors_as_string );
         break;

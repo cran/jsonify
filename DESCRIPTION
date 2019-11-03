@@ -1,23 +1,26 @@
 Package: jsonify
 Type: Package
-Title: Converts 'R' Objects to Javascript Object Notation (JSON)
-Version: 0.2.1
-Date: 2019-04-24
+Title: Convert Between 'R' Objects and Javascript Object Notation
+        (JSON)
+Version: 1.0.0
+Date: 2019-11-03
 Authors@R: c(
-    person("David", "Cooley", ,"dcooley@symbolix.com.au", role = c("aut", "cre"))
+    person("David", "Cooley", ,"dcooley@symbolix.com.au", role = c("aut", "cre")),
+    person("Chris", "Muir", role = "ctb")
     )
-Description: Converts 'R' objects into Javascript Object Notation (JSON) using 
+Description: Conversions between 'R' objects and Javascript Object Notation (JSON) using 
     the 'rapidjsonr' library <https://CRAN.R-project.org/package=rapidjsonr>. 
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.18)
 LinkingTo: BH, rapidjsonr, Rcpp
 RoxygenNote: 6.1.1
-Suggests: covr, microbenchmark, jsonlite, testthat, knitr, rmarkdown
+Suggests: covr, testthat, knitr, rmarkdown
 Encoding: UTF-8
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2019-04-24 07:25:49 UTC; dave
-Author: David Cooley [aut, cre]
+Packaged: 2019-11-02 23:56:39 UTC; dave
+Author: David Cooley [aut, cre],
+  Chris Muir [ctb]
 Maintainer: David Cooley <dcooley@symbolix.com.au>
 Repository: CRAN
-Date/Publication: 2019-04-24 08:00:03 UTC
+Date/Publication: 2019-11-03 06:00:05 UTC
