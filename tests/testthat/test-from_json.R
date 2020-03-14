@@ -268,6 +268,7 @@ test_that("data frame returned properly", {
   df1 <- data.frame(
     x = 1:2
     , y = 3:4
+    , stringsAsFactors = T
   )
   df2 <- data.frame(
     z = c("a","b")
@@ -307,7 +308,7 @@ test_that("data frame returned properly", {
   x <- from_json( js )
   expect_equal( as.character( to_json(x, unbox = T) ), js )
 
-  df <- data.frame( id = 1:2, mat = I(matrix(1:4, ncol = 2)))
+  df <- data.frame( id = 1:2, mat = I(matrix(1:4, ncol = 2)), stringsAsFactors = TRUE )
   js <- to_json( df )
   x <- from_json( js )
   ## I can't recreate 'AsIs' columns
@@ -420,5 +421,32 @@ test_that("round trips work", {
   
 })
 
-
-
+test_that("UTF-8 encoding is not mangled", {
+  test_list <- list(
+    id = c("回", "站"),
+    val = list("收", c("غ ظ ض ذ خ ث ت ش ر ق ص ف ع س ن" ,
+                      "م ل ك ي ط ح ز و ه د ج ب أ"))
+  )
+  
+  test_df <- structure(test_list,
+                       row.names = 1:2,
+                       class = "data.frame")
+  
+  test_json_df <- '[{"id":"回","val":"收"},{"id":"站","val":["غ ظ ض ذ خ ث ت ش ر ق ص ف ع س ن","م ل ك ي ط ح ز و ه د ج ب أ"]}]'
+  
+  
+  expect_identical(
+    from_json(to_json(test_list)),
+    test_list
+  )
+  
+  expect_identical(
+    from_json(test_json_df),
+    test_df
+  )
+  
+  expect_identical(
+    from_json(to_json(test_df)),
+    test_df
+  )
+})

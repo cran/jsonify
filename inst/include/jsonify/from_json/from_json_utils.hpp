@@ -3,7 +3,6 @@
 
 #include <Rcpp.h>
 
-// [[Rcpp::depends(rapidjsonr)]]
 #include "rapidjson/document.h"
 
 #define R_NA_VAL Rcpp::LogicalVector::create(NA_LOGICAL);
@@ -11,12 +10,15 @@
 namespace jsonify {
 namespace from_json {
 
-  inline int where_is(
-      Rcpp::String to_find,
-      Rcpp::StringVector& sv ) {
-    int n = sv.size();
-    int i;
-    for( i = 0; i < n; i++ ) {
+  inline R_xlen_t where_is(
+    Rcpp::String to_find,
+    Rcpp::StringVector& sv
+  ) {
+    R_xlen_t n = sv.size();
+    R_xlen_t i;
+
+    for( i = 0; i < n; ++i ) {
+
       if ( to_find == sv[i] ) {
         return i;
       }
@@ -32,10 +34,11 @@ namespace from_json {
     
     std::unordered_set< int > dtypes;
     
-    int doc_len = doc.Size();
+    R_xlen_t doc_len = doc.Size();
     
     int curr_dtype;
-    for(int i = 0; i < doc_len; ++i) {
+    R_xlen_t i;
+    for(i = 0; i < doc_len; ++i) {
       curr_dtype = doc[i].GetType();
       // rapidjson uses separate ints for types true (2) and false (1)...combine
       // them into one value such that bool is 1.
@@ -105,27 +108,42 @@ namespace from_json {
     return 0;
   }
   
-  // Convert all NULL elements in a list to NA.
-  inline void null_to_na(Rcpp::List& x) {
-    for(unsigned int i = 0; i < x.size(); ++i) {
-      if(Rf_isNull(x[i])) {
-        x[i] = R_NA_VAL;
-      }
-    }
-  }
+  // // Convert all NULL elements in a list to NA.
+  // inline void null_to_na(Rcpp::List& x) {
+  //   for(unsigned int i = 0; i < x.size(); ++i) {
+  //     if(Rf_isNull(x[i])) {
+  //       x[i] = R_NA_VAL;
+  //     }
+  //   }
+  // }
   
   // returns -1 if doens't exist
   // else the stored r_type
-  inline int column_value(
-      std::unordered_map< std::string, int >& column_map,
+  // inline R_xlen_t column_value(
+  //     std::unordered_map< std::string, int >& column_map,
+  //     const char* to_find
+  //   ) {
+  //   std::string str( to_find );
+  //   std::unordered_map< std::string, int >::iterator it;
+  //   it = column_map.find( str );
+  //   
+  //   if( it != column_map.end() ) {
+  //     R_xlen_t res = it->second;
+  //     return res;
+  //   }
+  //   return -1;
+  // }
+  
+  inline R_xlen_t column_value(
+      std::unordered_map< std::string, R_xlen_t >& column_map,
       const char* to_find
-    ) {
+  ) {
     std::string str( to_find );
-    std::unordered_map< std::string, int >::iterator it;
+    std::unordered_map< std::string, R_xlen_t >::iterator it;
     it = column_map.find( str );
     
     if( it != column_map.end() ) {
-      int res = it->second;
+      R_xlen_t res = it->second;
       return res;
     }
     return -1;
@@ -134,7 +152,7 @@ namespace from_json {
   inline void insert_column_value(
     Rcpp::List& columns,
     const char* this_column,
-    SEXP val,
+    SEXP& val,
     R_xlen_t& row_index
   ) {
     Rcpp::List lst = columns[ this_column ];
@@ -149,7 +167,7 @@ namespace from_json {
   inline void append_new_column(
       Rcpp::List& columns,
       const char* this_column,
-      R_xlen_t n_rows
+      R_xlen_t& n_rows
   ) {
     Rcpp::List new_column( n_rows );
     columns[ this_column ] = new_column;
@@ -158,12 +176,12 @@ namespace from_json {
   inline void append_new_column_fill_na(
     Rcpp::List& columns,
     const char* this_column,
-    R_xlen_t n_rows
+    R_xlen_t& n_rows
   ) {
     Rcpp::List new_column( n_rows );
     // need NAs when fill_na = true;
     R_xlen_t i;
-    for( i = 0; i < n_rows; i++ ) {
+    for( i = 0; i < n_rows; ++i ) {
       new_column[i] = NA_LOGICAL;
     }
     columns[ this_column ] = new_column;

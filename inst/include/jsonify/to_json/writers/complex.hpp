@@ -16,11 +16,11 @@ namespace complex {
   template < typename Writer >
   inline void switch_vector(
       Writer& writer, 
-      SEXP this_vec, 
-      bool unbox, 
-      int digits, 
-      bool numeric_dates, 
-      bool factors_as_string
+      SEXP& this_vec, 
+      bool& unbox, 
+      int& digits, 
+      bool& numeric_dates, 
+      bool& factors_as_string
     ) {
     
     switch( TYPEOF( this_vec ) ) {
@@ -71,12 +71,12 @@ namespace complex {
   template < typename Writer >
   inline void switch_vector(
       Writer& writer, 
-      SEXP this_vec, 
-      bool unbox, 
-      int digits, 
-      bool numeric_dates, 
-      bool factors_as_string, 
-      int row
+      SEXP& this_vec, 
+      bool& unbox, 
+      int& digits, 
+      bool& numeric_dates, 
+      bool& factors_as_string, 
+      R_xlen_t& row
     ) {
     
     switch( TYPEOF( this_vec ) ) {
@@ -136,11 +136,11 @@ namespace complex {
       bool numeric_dates = true,
       bool factors_as_string = true, 
       std::string by = "row", 
-      int row = -1,   // for when we are recursing into a row of a data.frame
+      R_xlen_t row = -1,   // for when we are recursing into a row of a data.frame
       bool in_data_frame = false  // for keeping track of when we're in a column of a data.frame
       ) {
     
-    int i, df_col, df_row;
+    R_xlen_t i, df_col, df_row;
     
     if( Rf_isNull( list_element ) ) {
       writer.StartObject();
@@ -176,14 +176,48 @@ namespace complex {
       
       in_data_frame = true;
       Rcpp::DataFrame df = Rcpp::as< Rcpp::DataFrame >( list_element );
-      int n_cols = df.ncol();
-      int n_rows = df.nrows();
+      R_xlen_t n_cols = df.ncol();
+      R_xlen_t n_rows = df.nrows();
       Rcpp::StringVector column_names = df.names();
+      
+      // issue 59
+      // moving the factor_as_string conersion as high up as possible, 
+      // so it works on the whole vector. 
+      if( factors_as_string ) {
+        jsonify::utils::factors_to_string( df );
+      }
+      
+      // issue 60
+      if( !numeric_dates ) {
+        int tp;
+
+        for( df_col = 0; df_col < n_cols; ++df_col ) {
+          const char * col_name = column_names[ df_col ];
+          tp = TYPEOF( df[ col_name ] );
+
+          if( tp == REALSXP ) {
+            Rcpp::NumericVector nv_dte = Rcpp::as< Rcpp::NumericVector >( df[ col_name ] );
+            Rcpp::CharacterVector cls = jsonify::utils::getRClass( nv_dte );
+
+            if( jsonify::dates::is_in( "Date", cls ) ) {
+
+              Rcpp::StringVector sv_dte = jsonify::dates::date_to_string( nv_dte );
+              df[ col_name ] = sv_dte;
+
+            } else if (jsonify::dates::is_in( "POSIXt", cls ) ) {
+
+              Rcpp::StringVector sv_psx = jsonify::dates::posixct_to_string( nv_dte );
+              df[ col_name ] = sv_psx;
+            }
+          }
+        }
+      }
+      
       
       if ( by == "column") {
         writer.StartObject();
         
-        for( df_col = 0; df_col < n_cols; df_col++ ) {
+        for( df_col = 0; df_col < n_cols; ++df_col ) {
 
           const char *h = column_names[ df_col ];
           writer.String( h );
@@ -206,7 +240,7 @@ namespace complex {
             SEXP this_vec = df[ h ];
             
             switch( TYPEOF( this_vec ) ) {
-     
+            
             case VECSXP: {
               Rcpp::List lst = Rcpp::as< Rcpp::List >( this_vec );
               write_value( writer, lst, unbox, digits, numeric_dates, factors_as_string, by, row, in_data_frame );
@@ -232,7 +266,7 @@ namespace complex {
               const char *h = column_names[ df_col ];
               writer.String( h );
               SEXP this_vec = df[ h ];
-       
+              
               switch( TYPEOF( this_vec ) ) {
               case VECSXP: {
                 Rcpp::List lst = Rcpp::as< Rcpp::List >( this_vec );
@@ -279,7 +313,7 @@ namespace complex {
         } else {
           lst = temp_lst;
 
-          int n = lst.size();
+          R_xlen_t n = lst.size();
           
           if ( n == 0 ) {
             writer.StartArray();
@@ -294,7 +328,7 @@ namespace complex {
           
           if ( has_names ) {
             Rcpp::CharacterVector temp_names = lst.names();
-            for( i = 0; i < n; i++ ) {
+            for( i = 0; i < n; ++i ) {
               list_names[i] = temp_names[i] == "" ? list_names[i] : temp_names[i];
             }
           }
@@ -304,7 +338,7 @@ namespace complex {
           // list-column in a data.frame shouldn't be nested inside another array
           jsonify::utils::writer_starter( writer, has_names, in_data_frame );
           
-          for ( i = 0; i < n; i++ ) {
+          for ( i = 0; i < n; ++i ) {
             
             SEXP recursive_list = lst[ i ];
             if ( has_names ) {

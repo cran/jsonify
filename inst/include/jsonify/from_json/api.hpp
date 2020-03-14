@@ -16,7 +16,7 @@ namespace api {
   //' @export
   inline SEXP from_json(rapidjson::Value& doc, bool& simplify, bool& fill_na ) {
 
-    int sequential_array_counter = 0;
+    R_xlen_t sequential_array_counter = 0;
     
     // If the input is a scalar value of type int, double, string, or bool, 
     // return Rcpp vector with length 1.
@@ -34,7 +34,7 @@ namespace api {
     
     if( doc.IsString() ) {
       Rcpp::CharacterVector x(1);
-      x[0] = doc.GetString();
+      x[0] = Rcpp::String(doc.GetString());
       return x;
     }
     
@@ -57,6 +57,29 @@ namespace api {
     }
     
     return from_json( doc, simplify, fill_na );
+  }
+
+  inline SEXP from_ndjson( const char * ndjson, bool& simplify, bool& fill_na ) {
+    
+    // TODO:
+    // - if ndjson is a single json object, no need to wrap in `[]` as this will nest it deeper
+    rapidjson::Document doc;
+    doc.Parse(ndjson);
+    
+    std::string json;
+    
+    if(doc.HasParseError()) {
+      std::ostringstream os;
+      os << '[';
+      os << ndjson;
+      os << ']';
+      json = os.str();
+      std::replace( json.begin(), json.end(), '\n', ',');
+      return from_json( json.c_str(), simplify, fill_na );
+    } 
+    
+    return from_json( doc, simplify, fill_na );
+    
   }
 
 }

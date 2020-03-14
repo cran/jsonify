@@ -5,6 +5,10 @@ rcpp_from_json <- function(json, simplify, fill_na) {
     .Call(`_jsonify_rcpp_from_json`, json, simplify, fill_na)
 }
 
+rcpp_from_ndjson <- function(ndjson, simplify, fill_na) {
+    .Call(`_jsonify_rcpp_from_ndjson`, ndjson, simplify, fill_na)
+}
+
 rcpp_get_dtypes <- function(json) {
     .Call(`_jsonify_rcpp_get_dtypes`, json)
 }
@@ -29,12 +33,20 @@ rcpp_read_json_file <- function(file, mode, simplify, fill_na, buffer_size = 102
     .Call(`_jsonify_rcpp_read_json_file`, file, mode, simplify, fill_na, buffer_size)
 }
 
+rcpp_read_ndjson_file <- function(file, mode, simplify, fill_na) {
+    .Call(`_jsonify_rcpp_read_ndjson_file`, file, mode, simplify, fill_na)
+}
+
 source_tests <- function() {
     invisible(.Call(`_jsonify_source_tests`))
 }
 
 rcpp_to_json <- function(lst, unbox = FALSE, digits = -1L, numeric_dates = TRUE, factors_as_string = TRUE, by = "row") {
     .Call(`_jsonify_rcpp_to_json`, lst, unbox, digits, numeric_dates, factors_as_string, by)
+}
+
+rcpp_to_ndjson <- function(lst, unbox = FALSE, digits = -1L, numeric_dates = TRUE, factors_as_string = TRUE, by = "row") {
+    .Call(`_jsonify_rcpp_to_ndjson`, lst, unbox, digits, numeric_dates, factors_as_string, by)
 }
 
 rcpp_validate_json <- function(json) {
