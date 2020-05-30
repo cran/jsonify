@@ -3,8 +3,6 @@
 
 #include <Rcpp.h>
 
-/* // [[Rcpp::depends(rapidjsonr)]] */
-
 #include "rapidjson/writer.h"
 
 namespace jsonify {
@@ -45,8 +43,7 @@ namespace utils {
   }
 
   inline Rcpp::StringVector finalise_json( rapidjson::StringBuffer& sb ) {
-    Rcpp::StringVector js(1);
-    js[0] = Rcpp::String(sb.GetString());
+    Rcpp::StringVector js = Rcpp::StringVector::create( Rcpp::String( sb.GetString() ) );
     
     js.attr("class") = "json";
     return js;

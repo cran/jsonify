@@ -1,6 +1,6 @@
-#include "Rcpp.h"
 #include "jsonify/from_json/api.hpp"
 
+#include <Rcpp.h>
 
 // [[Rcpp::export]]
 SEXP rcpp_from_json(const char * json, bool& simplify, bool& fill_na ) {

@@ -14,37 +14,27 @@ namespace api {
   //' @param json const char, JSON string to be parsed. Coming from R, this
   //'  input should be a character vector of length 1.
   //' @export
-  inline SEXP from_json(rapidjson::Value& doc, bool& simplify, bool& fill_na ) {
+  inline SEXP from_json( rapidjson::Value& doc, bool& simplify, bool& fill_na ) {
 
-    R_xlen_t sequential_array_counter = 0;
-    
     // If the input is a scalar value of type int, double, string, or bool, 
     // return Rcpp vector with length 1.
     if( doc.IsInt() ) {
-      Rcpp::IntegerVector x(1);
-      x[0] = doc.GetInt();
-      return x;
+      return Rcpp::wrap( doc.GetInt() );
     }
     
     if( doc.IsDouble() ) {
-      Rcpp::NumericVector x(1);
-      x[0] = doc.GetDouble();
-      return x;
+      return Rcpp::wrap( doc.GetDouble() );
     }
     
     if( doc.IsString() ) {
-      Rcpp::CharacterVector x(1);
-      x[0] = Rcpp::String(doc.GetString());
-      return x;
+      return Rcpp::wrap( Rcpp::String( doc.GetString() ) );
     }
     
     if( doc.IsBool() ) {
-      Rcpp::LogicalVector x(1);
-      x[0] = doc.GetBool();
-      return x;
+      return Rcpp::wrap( doc.GetBool() );
     }
     
-    return jsonify::from_json::json_to_sexp( doc, simplify, fill_na, sequential_array_counter );
+    return jsonify::from_json::from_json( doc, simplify, fill_na );
   }
 
   inline SEXP from_json( const char* json, bool& simplify, bool& fill_na ) {
@@ -82,7 +72,7 @@ namespace api {
     
   }
 
-}
-} // jsonify
+}  // namespace api
+}  // namespace jsonify
 
 #endif
