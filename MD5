@@ -1,7 +1,7 @@
-46131c0a769cbc3c67efc4a03ff42b25 *DESCRIPTION
+d6f8c7e6e45f2d0de2b0f2c069e36705 *DESCRIPTION
 44d9f802990ed50356604f19f6005bab *LICENSE
 84a15d5d43fc5c7c52a391aa820dc16e *NAMESPACE
-0277c263b92ee0203fa0a0a92470eaaf *NEWS.md
+3cae109d32db001baa5a8100c2ac8e06 *NEWS.md
 d12c469d85dc4e2fb6796a96f56f6df3 *R/RcppExports.R
 1c446df45809fd7163187b68f4c608c5 *R/from_json.R
 f4f96fe559515f2104bc31b7c0b735a9 *R/jsonify-package.R
@@ -14,11 +14,11 @@ e1961a80d1a66662ff95ecd4b4eb947b *R/scratch2.R
 4db36ccdb54bc54fbe43c2edc87f6fc0 *build/vignette.rds
 81cd2f571a01023f00c04ba81159dfa5 *inst/doc/jsonify.R
 01c8da6d94a4af6ef580eaa4cbbadfbd *inst/doc/jsonify.Rmd
-8f0bd48c937c3e33d270673b34a0b161 *inst/doc/jsonify.html
+0d6c3e481a4119200f216a60de132624 *inst/doc/jsonify.html
 0f477df9576abb2e4236ce92349e908b *inst/include/jsonify/from_json/api.hpp
-c85a9e30ea0405ae705b366e838c0bfe *inst/include/jsonify/from_json/from_json.hpp
+c89f6298939ee472ddcea93c6cfec379 *inst/include/jsonify/from_json/from_json.hpp
 3b8adf153a79dda7e61c099dbe58ac93 *inst/include/jsonify/from_json/from_json_utils.hpp
-079264216ec789b3311f67219ca0cb01 *inst/include/jsonify/from_json/simplify/simplify.hpp
+4af5ebd0f55adc63acf898062b72f25b *inst/include/jsonify/from_json/simplify/simplify.hpp
 ca52345a88741ff1eea72a6a9c56c527 *inst/include/jsonify/jsonify.hpp
 1914b4a24adb17a1dea20eb8e9a1e9f7 *inst/include/jsonify/to_json/api.hpp
 6c527eb2a94fd798e879a94573387d47 *inst/include/jsonify/to_json/dates/dates.hpp
